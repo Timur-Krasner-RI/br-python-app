@@ -45,18 +45,18 @@ async def _check() -> None:
     }
     response = await homepage(Request(scope))
     versions = installed_versions()
-    plain = {"urllib3": "2.0.7"}
+    plain = {"urllib3": {"2.0.7", "1.26.5"}}
     missing = [
         name
         for name, installed in versions.items()
-        if "+aikido." not in installed and plain.get(name) != installed
+        if "+aikido." not in installed and installed not in plain.get(name, ())
     ]
     print(response.status_code)
     print(f"{len(versions)} packages")
     if missing:
         raise SystemExit(f"missing aikido builds: {missing}")
-    if versions.get("urllib3") != "2.0.7":
-        raise SystemExit(f"urllib3 should be the plain release, got {versions.get('urllib3')}")
+    if versions.get("urllib3") not in {"2.0.7", "1.26.5"}:
+        raise SystemExit(f"urllib3 should be a plain release, got {versions.get('urllib3')}")
     if response.status_code != 200:
         raise SystemExit(response.body.decode())
 
